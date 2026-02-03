@@ -1,6 +1,8 @@
 /**
  * Art0 Studio - Static Production Build
  * Loads config from config.json, images from GCS CDN
+ *
+ * Performance: Adaptive quality tiers for sustained 60fps
  */
 
 (function() {
@@ -13,6 +15,7 @@
     const statFps = document.getElementById('stat-fps');
     const fpsFill = document.getElementById('fps-fill');
     let startTime = Date.now();
+    let currentQualityTier = 'A';
 
     function log(message, type = 'info') {
         // Skip logging on mobile/tablet where terminal is hidden
@@ -85,6 +88,31 @@
     }
 
     /**
+     * Apply performance quality tier
+     * Tier A: Full effects (Safari, high-end)
+     * Tier B: Reduced blur (mid-range)
+     * Tier C: Minimal effects (low-end)
+     */
+    function applyQualityTier(tier) {
+        if (tier === currentQualityTier) return;
+
+        const body = document.body;
+
+        // Remove existing tier classes
+        body.classList.remove('perf-tier-a', 'perf-tier-b', 'perf-tier-c');
+
+        // Apply new tier
+        if (tier === 'B') {
+            body.classList.add('perf-tier-b');
+        } else if (tier === 'C') {
+            body.classList.add('perf-tier-c');
+        }
+        // Tier A is default (no class needed)
+
+        currentQualityTier = tier;
+    }
+
+    /**
      * Initialize the application
      */
     async function init() {
@@ -126,6 +154,16 @@
             if (statFps) statFps.textContent = fps;
             if (fpsFill) fpsFill.style.width = `${Math.min(fps / 60 * 100, 100)}%`;
         };
+
+        // Adaptive quality: respond to tier changes
+        animator.onQualityChange = (tier, fps) => {
+            applyQualityTier(tier);
+            log(`quality → <span class="highlight">Tier ${tier}</span> (${Math.round(fps)}fps)`, 'perf');
+        };
+
+        // Apply initial quality tier
+        applyQualityTier(animator.qualityTier);
+        log(`quality: <span class="highlight">Tier ${animator.qualityTier}</span>`, 'perf');
 
         // Debounced resize for better mobile performance
         let resizeTimeout;

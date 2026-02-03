@@ -1,4 +1,5 @@
 /* Art0 Studio - Liquid Glass Design */
+/* Performance-optimized with GPU acceleration */
 
 * {
     margin: 0;
@@ -24,6 +25,13 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
+
+    /* Performance tiers - Tier A (full quality) is default */
+    --mesh-blur: 60px;
+    --mesh-blur-secondary: 80px;
+    --orb-blur: 60px;
+    --backdrop-blur: 40px;
+    --mesh-animation-state: running;
 }
 
 html {
@@ -42,13 +50,16 @@ body {
     touch-action: manipulation;
 }
 
-/* Animated Mesh Gradient Background */
+/* Animated Mesh Gradient Background - GPU Accelerated */
 .mesh-gradient {
     position: fixed;
     inset: 0;
     z-index: 0;
     overflow: hidden;
     background: var(--bg-primary);
+    /* Force GPU layer for compositing */
+    transform: translateZ(0);
+    contain: strict;
 }
 
 .mesh-gradient::before {
@@ -64,8 +75,13 @@ body {
         radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 35%),
         radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 35%),
         radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 40%);
-    animation: meshFlow 18s ease-in-out infinite;
-    filter: blur(60px);
+    animation: meshFlow 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-play-state: var(--mesh-animation-state);
+    filter: blur(var(--mesh-blur));
+    /* GPU hints for smooth animation */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
 .mesh-gradient::after {
@@ -79,17 +95,27 @@ body {
         radial-gradient(circle at 60% 40%, rgba(251, 146, 60, 0.18) 0%, transparent 30%),
         radial-gradient(circle at 25% 60%, rgba(59, 130, 246, 0.12) 0%, transparent 35%),
         radial-gradient(circle at 85% 70%, rgba(168, 85, 247, 0.1) 0%, transparent 30%);
-    animation: meshPulse 14s ease-in-out infinite;
+    animation: meshPulse 14s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     animation-delay: -4s;
-    filter: blur(80px);
+    animation-play-state: var(--mesh-animation-state);
+    filter: blur(var(--mesh-blur-secondary));
+    /* GPU hints */
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
 .mesh-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(60px);
+    filter: blur(var(--orb-blur));
     opacity: 0.35;
-    animation: orbFloat 20s ease-in-out infinite;
+    animation: orbFloat 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-play-state: var(--mesh-animation-state);
+    /* GPU layer */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
 }
 
 .mesh-orb:nth-child(1) {
@@ -197,14 +223,14 @@ body {
     position: fixed;
     top: calc(12px + var(--safe-top));
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateZ(0);
     z-index: 150;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     background: var(--bg-glass-dark);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -213,9 +239,11 @@ body {
         0 0 0 1px rgba(255, 255, 255, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     opacity: 0;
-    animation: fadeIn 0.6s ease 0.3s forwards;
+    animation: fadeIn 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) 0.3s forwards;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    /* Responsive micro-interaction */
+    transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+    will-change: transform;
 }
 
 #logo:active { transform: translateX(-50%) scale(0.95); }
@@ -228,8 +256,14 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-50%) scale(0.9); }
-    to { opacity: 1; transform: translateX(-50%) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.92) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1) translateZ(0);
+    }
 }
 
 /* Controls Bar - Mobile */
@@ -237,14 +271,14 @@ body {
     position: fixed;
     bottom: calc(12px + var(--safe-bottom));
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateZ(0);
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
     background: var(--bg-glass);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     box-shadow:
@@ -252,13 +286,20 @@ body {
         0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     z-index: 100;
     opacity: 0;
-    animation: slideUp 0.5s ease 0.4s forwards;
+    animation: slideUp 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) 0.4s forwards;
     max-width: calc(100% - 24px);
+    will-change: transform;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) translateZ(0);
+    }
 }
 
 .control-group {
@@ -329,8 +370,8 @@ select:disabled { opacity: 0.5; cursor: not-allowed; }
     left: 12px;
     right: 12px;
     background: var(--bg-glass);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 16px;
@@ -341,8 +382,11 @@ select:disabled { opacity: 0.5; cursor: not-allowed; }
     box-shadow: 0 8px 32px var(--glass-shadow);
     opacity: 0;
     pointer-events: none;
-    transform: translateY(10px);
-    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform: translateY(10px) translateZ(0);
+    /* Premium ease: fast response (0.2), soft landing (0.9, 0.1) */
+    transition: opacity 0.28s cubic-bezier(0.2, 0, 0.2, 1),
+                transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+    will-change: transform, opacity;
 }
 
 #settings-panel.visible {
@@ -421,8 +465,17 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes canvasIn {
-    from { opacity: 0; transform: scale(0.97); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateZ(0);
+    }
+    60% {
+        opacity: 1;
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+    }
 }
 
 /* Loading Overlay */
@@ -508,8 +561,8 @@ input[type="range"]::-moz-range-thumb {
     gap: 8px;
     padding: 6px 12px;
     background: var(--bg-glass);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(180%);
     border: 1px solid var(--glass-border);
     border-radius: 14px;
     font-size: 11px;
@@ -517,7 +570,8 @@ input[type="range"]::-moz-range-thumb {
     color: var(--text-secondary);
     z-index: 100;
     opacity: 0;
-    animation: fadeIn 0.5s ease 0.6s forwards;
+    animation: fadeIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) 0.6s forwards;
+    transform: translateZ(0);
 }
 
 #mobile-status .status-dot {
@@ -967,4 +1021,112 @@ input[type="range"]::-moz-range-thumb {
         padding: 4px 10px;
         font-size: 10px;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* PERFORMANCE TIERS - Adaptive quality for 60fps guarantee                    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Tier B: Reduced blur for mid-range devices */
+.perf-tier-b {
+    --mesh-blur: 40px;
+    --mesh-blur-secondary: 50px;
+    --orb-blur: 40px;
+    --backdrop-blur: 25px;
+}
+
+.perf-tier-b .mesh-gradient::before,
+.perf-tier-b .mesh-gradient::after {
+    animation-duration: 24s; /* Slower = fewer repaints */
+}
+
+.perf-tier-b .mesh-orb {
+    animation-duration: 30s;
+}
+
+/* Tier C: Minimal effects for low-end devices */
+.perf-tier-c {
+    --mesh-blur: 30px;
+    --mesh-blur-secondary: 30px;
+    --orb-blur: 30px;
+    --backdrop-blur: 15px;
+    --mesh-animation-state: paused;
+}
+
+.perf-tier-c .mesh-gradient::before,
+.perf-tier-c .mesh-gradient::after,
+.perf-tier-c .mesh-orb {
+    animation: none;
+}
+
+/* Static fallback for Tier C */
+.perf-tier-c .mesh-gradient {
+    background: linear-gradient(
+        135deg,
+        rgba(251, 191, 36, 0.15) 0%,
+        rgba(6, 182, 212, 0.1) 25%,
+        rgba(236, 72, 153, 0.08) 50%,
+        rgba(139, 92, 246, 0.1) 75%,
+        rgba(34, 197, 94, 0.08) 100%
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* REDUCED MOTION - Accessibility support                                       */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .mesh-gradient::before,
+    .mesh-gradient::after,
+    .mesh-orb {
+        animation: none !important;
+    }
+
+    /* Static gradient for reduced motion */
+    .mesh-gradient {
+        background: linear-gradient(
+            135deg,
+            rgba(251, 191, 36, 0.12) 0%,
+            rgba(6, 182, 212, 0.08) 50%,
+            rgba(139, 92, 246, 0.08) 100%
+        );
+    }
+
+    .mesh-gradient::before,
+    .mesh-gradient::after {
+        display: none;
+    }
+
+    .mesh-orb {
+        display: none;
+    }
+
+    #loading-overlay {
+        transition: none;
+    }
+
+    .spinner {
+        animation: none !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* CANVAS OPTIMIZATION                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+#art-canvas {
+    /* Force GPU compositing for canvas */
+    transform: translateZ(0);
+    will-change: contents;
+    /* Prevent subpixel rendering issues */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
