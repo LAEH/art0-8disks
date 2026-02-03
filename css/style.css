@@ -454,10 +454,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 #art-canvas {
-    max-width: 100%;
-    max-height: 100%;
-    /* Enforce square aspect ratio */
-    aspect-ratio: 1 / 1;
+    /* Size controlled by JavaScript - don't override */
+    display: block;
     opacity: 0;
     animation: canvasIn 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) 0.2s forwards;
     filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.12));
@@ -1126,8 +1124,6 @@ input[type="range"]::-moz-range-thumb {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 #art-canvas {
-    /* GPU compositing hint - doesn't override animation transform */
+    /* GPU compositing hint */
     will-change: contents;
-    /* Aspect ratio: always square */
-    aspect-ratio: 1 / 1;
 }
