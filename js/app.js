@@ -436,8 +436,16 @@
     function handleResize() {
         const container = document.getElementById('canvas-container');
         const rect = container.getBoundingClientRect();
-        // Square: use minimum dimension
-        const size = Math.min(rect.width, rect.height);
+        const style = getComputedStyle(container);
+
+        // Get actual content area (subtract padding)
+        const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+        const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+        const contentWidth = rect.width - paddingX;
+        const contentHeight = rect.height - paddingY;
+
+        // Square: use minimum dimension, leave some margin
+        const size = Math.min(contentWidth, contentHeight) * 0.95;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         animator.resize(Math.floor(size), Math.floor(size), dpr);
     }
