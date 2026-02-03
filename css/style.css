@@ -725,33 +725,34 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #canvas-container {
-        padding: 100px;
+        padding: 80px;
+        /* Reserve space for terminal on the right */
+        padding-right: 280px;
     }
 
     #art-canvas {
         filter: drop-shadow(0 20px 48px rgba(0, 0, 0, 0.15));
     }
 
-    /* ====== TERMINAL - Liquid Glass Design ====== */
+    /* ====== TERMINAL - Apple Liquid Glass ====== */
     #terminal {
         display: flex;
         flex-direction: column;
         position: fixed;
         top: 50%;
         transform: translateY(-50%) translateZ(0);
-        right: 28px;
-        width: 300px;
-        max-height: calc(100vh - 160px);
-        /* Translucent liquid glass */
-        background: rgba(20, 20, 24, 0.65);
-        backdrop-filter: blur(var(--backdrop-blur)) saturate(200%);
-        -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(200%);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        right: 20px;
+        width: 240px;
+        max-height: calc(100vh - 120px);
+        /* Apple liquid glass: light frosted effect */
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
         box-shadow:
-            0 24px 80px rgba(0, 0, 0, 0.25),
-            0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-            0 1px 0 rgba(255, 255, 255, 0.08) inset;
+            0 8px 40px rgba(0, 0, 0, 0.08),
+            0 0 0 0.5px rgba(0, 0, 0, 0.05);
         z-index: 50;
         opacity: 0;
         animation: terminalIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.8s forwards;
@@ -774,9 +775,9 @@ input[type="range"]::-moz-range-thumb {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 16px 18px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px 14px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         flex-shrink: 0;
     }
 
@@ -815,24 +816,24 @@ input[type="range"]::-moz-range-thumb {
 
     .terminal-title {
         margin-left: auto;
-        font-size: 11px;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.35);
+        font-size: 10px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.35);
         letter-spacing: 0.3px;
     }
 
     #terminal-content {
         flex: 1;
-        padding: 14px 16px;
+        padding: 10px 12px;
         overflow-y: auto;
-        font-size: 11px;
-        line-height: 1.7;
-        mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 20px), transparent 100%);
-        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 20px), transparent 100%);
+        font-size: 10px;
+        line-height: 1.6;
+        mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
     }
 
     #terminal-content::-webkit-scrollbar {
-        width: 4px;
+        width: 3px;
         display: block;
     }
 
@@ -841,16 +842,16 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #terminal-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.15);
         border-radius: 2px;
     }
 
     .log-line {
         display: flex;
-        gap: 10px;
-        margin-bottom: 6px;
+        gap: 8px;
+        margin-bottom: 4px;
         animation: logIn 0.3s ease;
-        padding: 4px 0;
+        padding: 2px 0;
     }
 
     @keyframes logIn {
@@ -859,7 +860,7 @@ input[type="range"]::-moz-range-thumb {
     }
 
     .log-line .timestamp {
-        color: rgba(255, 255, 255, 0.2);
+        color: rgba(0, 0, 0, 0.25);
         flex-shrink: 0;
         font-size: 10px;
         font-weight: 500;
@@ -867,74 +868,53 @@ input[type="range"]::-moz-range-thumb {
     }
 
     .log-line .message {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(0, 0, 0, 0.55);
         word-break: break-word;
     }
 
-    /* Log type colors with glow */
-    .log-line.system .message {
-        color: #4ade80;
-        text-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
-    }
-    .log-line.config .message {
-        color: #fbbf24;
-        text-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
-    }
-    .log-line.zone .message {
-        color: #c084fc;
-        text-shadow: 0 0 20px rgba(192, 132, 252, 0.3);
-    }
-    .log-line.info .message {
-        color: #60a5fa;
-        text-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
-    }
-    .log-line.event .message {
-        color: #f472b6;
-        text-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
-    }
-    .log-line.error .message {
-        color: #f87171;
-        text-shadow: 0 0 20px rgba(248, 113, 113, 0.3);
-    }
-    .log-line.perf .message {
-        color: #2dd4bf;
-        text-shadow: 0 0 20px rgba(45, 212, 191, 0.3);
-    }
+    /* Log type colors - light theme */
+    .log-line.system .message { color: #059669; }
+    .log-line.config .message { color: #d97706; }
+    .log-line.zone .message { color: #7c3aed; }
+    .log-line.info .message { color: #2563eb; }
+    .log-line.event .message { color: #db2777; }
+    .log-line.error .message { color: #dc2626; }
+    .log-line.perf .message { color: #0891b2; }
 
     .log-line .highlight {
-        color: #22d3ee;
+        color: #0369a1;
         font-weight: 600;
     }
 
     .log-line .dim {
-        color: rgba(255, 255, 255, 0.25);
+        color: rgba(0, 0, 0, 0.3);
     }
 
     .log-line .tag {
         display: inline-block;
-        padding: 1px 6px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        font-size: 10px;
+        padding: 1px 5px;
+        background: rgba(0, 0, 0, 0.06);
+        border-radius: 3px;
+        font-size: 9px;
         font-weight: 600;
         margin-right: 4px;
     }
 
-    .log-line.system .tag { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
-    .log-line.config .tag { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-    .log-line.zone .tag { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
-    .log-line.perf .tag { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+    .log-line.system .tag { background: rgba(5, 150, 105, 0.12); color: #059669; }
+    .log-line.config .tag { background: rgba(217, 119, 6, 0.12); color: #d97706; }
+    .log-line.zone .tag { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+    .log-line.perf .tag { background: rgba(8, 145, 178, 0.12); color: #0891b2; }
 
     /* Terminal Stats Footer */
     .terminal-footer {
-        padding: 12px 16px;
-        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.15) 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 12px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.4) 100%);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 10px;
-        color: rgba(255, 255, 255, 0.4);
+        font-size: 9px;
+        color: rgba(0, 0, 0, 0.4);
         flex-shrink: 0;
     }
 
@@ -945,7 +925,7 @@ input[type="range"]::-moz-range-thumb {
     }
 
     .terminal-footer .stat-value {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(0, 0, 0, 0.6);
         font-weight: 600;
     }
 
@@ -956,16 +936,16 @@ input[type="range"]::-moz-range-thumb {
     }
 
     .terminal-footer .fps-bar {
-        width: 40px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.1);
+        width: 32px;
+        height: 3px;
+        background: rgba(0, 0, 0, 0.08);
         border-radius: 2px;
         overflow: hidden;
     }
 
     .terminal-footer .fps-fill {
         height: 100%;
-        background: linear-gradient(90deg, #4ade80, #22d3ee);
+        background: linear-gradient(90deg, #059669, #0891b2);
         border-radius: 2px;
         transition: width 0.3s ease;
     }
@@ -974,15 +954,16 @@ input[type="range"]::-moz-range-thumb {
 /* ====== LARGE DESKTOP (min-width: 1400px) ====== */
 @media (min-width: 1400px) {
     #terminal {
-        width: 340px;
+        width: 260px;
     }
 
     #canvas-container {
-        padding: 100px;
+        padding: 80px;
+        padding-right: 300px;
     }
 
     .terminal-footer {
-        padding: 14px 18px;
+        padding: 10px 14px;
     }
 }
 

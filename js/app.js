@@ -436,17 +436,8 @@
     function handleResize() {
         const container = document.getElementById('canvas-container');
         const rect = container.getBoundingClientRect();
-
-        // On desktop, account for terminal width (fixed position doesn't affect layout)
-        let availableWidth = rect.width;
-        if (window.innerWidth >= 1000) {
-            const terminalWidth = window.innerWidth >= 1400 ? 340 : 300;
-            const terminalMargin = 28 + 28; // right margin + extra spacing
-            availableWidth = rect.width - terminalWidth - terminalMargin;
-        }
-
-        const size = Math.min(availableWidth, rect.height);
-        // Use device pixel ratio for crisp rendering, but cap at 2 for performance
+        // Square: use minimum dimension
+        const size = Math.min(rect.width, rect.height);
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         animator.resize(Math.floor(size), Math.floor(size), dpr);
     }
