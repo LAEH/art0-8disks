@@ -8,24 +8,51 @@
 
     // Terminal logging
     const terminalContent = document.getElementById('terminal-content');
+    const mobileZone = document.getElementById('mobile-zone');
+    const statCached = document.getElementById('stat-cached');
+    const statFps = document.getElementById('stat-fps');
+    const fpsFill = document.getElementById('fps-fill');
     let startTime = Date.now();
 
     function log(message, type = 'info') {
+        // Skip logging on mobile/tablet where terminal is hidden
+        if (window.innerWidth < 1000) return;
+
         const elapsed = Date.now() - startTime;
         const seconds = Math.floor(elapsed / 1000);
         const ms = elapsed % 1000;
         const timestamp = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}:${String(Math.floor(ms / 10)).padStart(2, '0')}`;
 
+        const tagMap = {
+            'system': 'SYS',
+            'config': 'CFG',
+            'zone': 'ZNE',
+            'info': 'INF',
+            'event': 'EVT',
+            'error': 'ERR',
+            'perf': 'PRF'
+        };
+
+        const tag = tagMap[type] || 'LOG';
+
         const line = document.createElement('div');
         line.className = `log-line ${type}`;
-        line.innerHTML = `<span class="timestamp">${timestamp}</span><span class="message">${message}</span>`;
+        line.innerHTML = `<span class="timestamp">${timestamp}</span><span class="message"><span class="tag">${tag}</span>${message}</span>`;
 
         terminalContent.appendChild(line);
         terminalContent.scrollTop = terminalContent.scrollHeight;
 
-        while (terminalContent.children.length > 100) {
+        while (terminalContent.children.length > 80) {
             terminalContent.removeChild(terminalContent.firstChild);
         }
+    }
+
+    // Update terminal footer stats
+    function updateStats() {
+        if (window.innerWidth < 1000) return;
+
+        const cached = window.imageLoader.size;
+        if (statCached) statCached.textContent = cached;
     }
 
     // DOM Elements
@@ -63,16 +90,55 @@
     async function init() {
         log('initializing...', 'system');
 
+        // Log device capabilities
+        const stats = window.imageLoader.stats;
+        const ua = navigator.userAgent;
+        const isChrome = ua.includes('Chrome');
+        const isSafari = ua.includes('Safari') && !isChrome;
+        const isFirefox = ua.includes('Firefox');
+        const browser = isChrome ? 'Chrome' : isSafari ? 'Safari' : isFirefox ? 'Firefox' : 'Other';
+
+        log(`browser: <span class="highlight">${browser}</span>`, 'perf');
+        log(`ImageBitmap: <span class="highlight">${stats.supportsImageBitmap ? 'enabled' : 'disabled'}</span>`, 'perf');
+        log(`batch size: <span class="highlight">${stats.connectionQuality.batchSize}</span> parallel`, 'perf');
+
+        if (navigator.deviceMemory) {
+            log(`device RAM: <span class="highlight">${navigator.deviceMemory}GB</span>`, 'perf');
+        }
+
+        if (isMobile()) {
+            log('viewport: <span class="highlight">mobile</span>', 'config');
+        }
+
         // Create animator
         animator = new Animator(canvas);
 
         animator.onStatusUpdate = (status) => {
-            log(`zone <span class="highlight">${status.color}</span> → set ${status.set}`, 'zone');
+            log(`<span class="highlight">${status.color}</span> → image ${status.set}`, 'zone');
+
+            // Update mobile status
+            if (mobileZone) {
+                mobileZone.textContent = status.color;
+            }
         };
 
-        animator.onFpsUpdate = null;
+        animator.onFpsUpdate = (fps) => {
+            if (statFps) statFps.textContent = fps;
+            if (fpsFill) fpsFill.style.width = `${Math.min(fps / 60 * 100, 100)}%`;
+        };
 
-        window.addEventListener('resize', handleResize);
+        // Debounced resize for better mobile performance
+        let resizeTimeout;
+        const debouncedResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(handleResize, 100);
+        };
+
+        window.addEventListener('resize', debouncedResize);
+        window.addEventListener('orientationchange', () => {
+            // Delay to let orientation change complete
+            setTimeout(handleResize, 200);
+        });
         handleResize();
 
         setupUIHandlers();
@@ -96,10 +162,11 @@
             const response = await fetch('config.json');
             config = await response.json();
 
-            log(`cdn: <span class="highlight">${config.cdn.replace('https://', '').substring(0, 40)}...</span>`, 'config');
+            const cdnHost = config.cdn.replace('https://', '').split('/')[0];
+            log(`CDN: <span class="highlight">${cdnHost}</span>`, 'config');
 
             const styleList = Object.keys(config.styles);
-            log(`found <span class="highlight">${styleList.length}</span> styles: ${styleList.join(', ')}`, 'config');
+            log(`styles: <span class="highlight">${styleList.join(', ')}</span>`, 'config');
 
             // Populate style selector
             styleSelect.innerHTML = '';
@@ -133,6 +200,8 @@
                 frameSelect.value = '5l-inverted';
             }
 
+            log('config loaded ✓', 'system');
+
         } catch (e) {
             console.error('Failed to load config:', e);
             log(`error: ${e.message}`, 'error');
@@ -153,10 +222,16 @@
         animator.stop();
         animator.reset();
 
+        // Clear old cache if switching styles to free memory
+        if (currentStyle && currentStyle !== styleName) {
+            window.imageLoader.clear();
+            log('cache cleared for style switch', 'info');
+        }
+
         try {
-            // Get resolution (default to first available, prefer 1680)
+            // Get resolution (use optimal for device)
             const resolutions = config.styles[styleName];
-            const selectedRes = resolution || (resolutions.includes(1680) ? 1680 : resolutions[0]);
+            const selectedRes = resolution || getOptimalResolution(resolutions);
 
             currentStyle = styleName;
             currentResolution = selectedRes;
@@ -192,17 +267,18 @@
             }
 
             // Log zone counts
-            let zoneInfo = [];
+            let totalImages = 0;
             for (const color of config.categories) {
-                const count = (images[color] || []).length;
-                zoneInfo.push(`${color}:${count}`);
+                totalImages += (images[color] || []).length;
             }
-            log(`zones: ${zoneInfo.join(' ')}`, 'config');
+            log(`zones: <span class="highlight">8</span> colors, <span class="highlight">${totalImages}</span> images`, 'config');
 
             loadingText.textContent = `Loading ${allImages.length} images...`;
-            log(`preloading <span class="highlight">${allImages.length}</span> images from CDN...`, 'info');
+            log(`preloading <span class="highlight">${allImages.length}</span> assets...`, 'info');
 
+            const loadStartTime = performance.now();
             let lastLoggedPercent = 0;
+
             await window.imageLoader.preloadAll(
                 allImages,
                 (loaded, total) => {
@@ -210,14 +286,17 @@
                     progressFill.style.width = `${percent}%`;
                     loadingText.textContent = `Loading images... ${loaded}/${total}`;
 
-                    if (percent >= lastLoggedPercent + 25) {
-                        log(`loaded ${percent}% <span class="dim">(${loaded}/${total})</span>`, 'info');
-                        lastLoggedPercent = percent - (percent % 25);
+                    if (percent >= lastLoggedPercent + 20) {
+                        log(`loaded <span class="highlight">${percent}%</span> <span class="dim">(${loaded}/${total})</span>`, 'info');
+                        lastLoggedPercent = percent - (percent % 20);
                     }
+
+                    updateStats();
                 }
             );
 
-            log('preload complete ✓', 'system');
+            const loadTime = ((performance.now() - loadStartTime) / 1000).toFixed(2);
+            log(`preload complete in <span class="highlight">${loadTime}s</span> ✓`, 'system');
 
             // Set background
             if (introUrl) {
@@ -238,11 +317,13 @@
 
             await updateFrame();
 
-            log(`fade: <span class="highlight">${animator.fadeDuration}s</span> hold: <span class="highlight">${animator.holdDuration}s</span>`, 'config');
+            log(`timing: fade <span class="highlight">${animator.fadeDuration}s</span>, hold <span class="highlight">${animator.holdDuration}s</span>`, 'config');
 
             hideLoading();
             animator.start();
             log('animation started ▶', 'system');
+
+            updateStats();
 
         } catch (e) {
             console.error('Failed to load style:', e);
@@ -318,7 +399,42 @@
         const container = document.getElementById('canvas-container');
         const rect = container.getBoundingClientRect();
         const size = Math.min(rect.width, rect.height);
-        animator.resize(Math.floor(size), Math.floor(size));
+        // Use device pixel ratio for crisp rendering, but cap at 2 for performance
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        animator.resize(Math.floor(size), Math.floor(size), dpr);
+    }
+
+    /**
+     * Check if device is mobile based on screen size
+     */
+    function isMobile() {
+        return window.innerWidth < 600 || window.innerHeight < 600;
+    }
+
+    /**
+     * Get optimal resolution for current device
+     */
+    function getOptimalResolution(availableResolutions) {
+        if (!availableResolutions || availableResolutions.length === 0) {
+            return null;
+        }
+
+        // On mobile, prefer smaller resolution for performance
+        if (isMobile()) {
+            // Prefer 1680 or lower on mobile
+            const mobilePreferred = availableResolutions.filter(r => r <= 1680);
+            if (mobilePreferred.length > 0) {
+                return Math.max(...mobilePreferred);
+            }
+        }
+
+        // On desktop, prefer 1680 for best quality/performance balance
+        if (availableResolutions.includes(1680)) {
+            return 1680;
+        }
+
+        // Fallback to first available
+        return availableResolutions[0];
     }
 
     function setupUIHandlers() {
@@ -349,7 +465,7 @@
         });
 
         fadeDuration.addEventListener('change', () => {
-            log(`fade duration → <span class="highlight">${animator.fadeDuration}s</span>`, 'event');
+            log(`fade → <span class="highlight">${animator.fadeDuration}s</span>`, 'event');
         });
 
         holdDuration.addEventListener('input', (e) => {
@@ -359,7 +475,7 @@
         });
 
         holdDuration.addEventListener('change', () => {
-            log(`hold duration → <span class="highlight">${animator.holdDuration}s</span>`, 'event');
+            log(`hold → <span class="highlight">${animator.holdDuration}s</span>`, 'event');
         });
 
         frameSelect.addEventListener('change', () => {
