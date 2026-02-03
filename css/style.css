@@ -727,9 +727,16 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #canvas-container {
-        /* Room around canvas + centered excluding terminal */
-        padding: 60px;
-        margin-right: 260px;
+        /* Don't extend behind terminal */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 280px;
+        bottom: 0;
+        padding: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     #art-canvas {
@@ -960,8 +967,8 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #canvas-container {
-        padding: 80px;
-        margin-right: 280px;
+        right: 300px;
+        padding: 100px;
     }
 
     .terminal-footer {
