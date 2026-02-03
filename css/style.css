@@ -456,8 +456,10 @@ input[type="range"]::-moz-range-thumb {
 #art-canvas {
     max-width: 100%;
     max-height: 100%;
+    /* Enforce square aspect ratio */
+    aspect-ratio: 1 / 1;
     opacity: 0;
-    animation: canvasIn 0.8s ease 0.2s forwards;
+    animation: canvasIn 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) 0.2s forwards;
     filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.12));
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -738,22 +740,23 @@ input[type="range"]::-moz-range-thumb {
         flex-direction: column;
         position: fixed;
         top: 50%;
-        transform: translateY(-50%);
+        transform: translateY(-50%) translateZ(0);
         right: 28px;
         width: 300px;
         max-height: calc(100vh - 160px);
-        background: var(--bg-terminal);
-        backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        /* Translucent liquid glass */
+        background: rgba(20, 20, 24, 0.65);
+        backdrop-filter: blur(var(--backdrop-blur)) saturate(200%);
+        -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(200%);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow:
-            0 24px 80px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(0, 0, 0, 0.3) inset,
-            0 1px 0 rgba(255, 255, 255, 0.05) inset;
+            0 24px 80px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+            0 1px 0 rgba(255, 255, 255, 0.08) inset;
         z-index: 50;
         opacity: 0;
-        animation: terminalIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+        animation: terminalIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.8s forwards;
         overflow: hidden;
         font-family: "SF Mono", "JetBrains Mono", "Fira Code", Monaco, monospace;
     }
@@ -774,8 +777,8 @@ input[type="range"]::-moz-range-thumb {
         align-items: center;
         gap: 8px;
         padding: 16px 18px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         flex-shrink: 0;
     }
 
@@ -927,13 +930,13 @@ input[type="range"]::-moz-range-thumb {
     /* Terminal Stats Footer */
     .terminal-footer {
         padding: 12px 16px;
-        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.15) 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 10px;
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.4);
         flex-shrink: 0;
     }
 
@@ -1123,10 +1126,8 @@ input[type="range"]::-moz-range-thumb {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 #art-canvas {
-    /* Force GPU compositing for canvas */
-    transform: translateZ(0);
+    /* GPU compositing hint - doesn't override animation transform */
     will-change: contents;
-    /* Prevent subpixel rendering issues */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    /* Aspect ratio: always square */
+    aspect-ratio: 1 / 1;
 }
