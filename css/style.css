@@ -727,10 +727,10 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #canvas-container {
-        /* Center canvas area, exclude terminal */
+        /* Center canvas area, exclude logo and terminal */
         position: fixed;
         top: 0;
-        left: 0;
+        left: 100px;
         right: 280px;
         bottom: 0;
         padding: 60px;
@@ -968,6 +968,7 @@ input[type="range"]::-moz-range-thumb {
     }
 
     #canvas-container {
+        left: 120px;
         right: 300px;
         padding: 100px;
     }
