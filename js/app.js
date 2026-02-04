@@ -444,8 +444,8 @@
         const contentWidth = rect.width - paddingX;
         const contentHeight = rect.height - paddingY;
 
-        // Square: use minimum dimension, leave some margin
-        const size = Math.min(contentWidth, contentHeight) * 0.95;
+        // Square: use minimum dimension, leave breathing room
+        const size = Math.min(contentWidth, contentHeight) * 0.92;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         animator.resize(Math.floor(size), Math.floor(size), dpr);
     }
