@@ -8,6 +8,10 @@
 (function() {
     'use strict';
 
+    // Splash screen
+    const splash = document.getElementById('splash');
+    const splashFill = document.getElementById('splash-progress-fill');
+
     // Terminal logging
     const terminalContent = document.getElementById('terminal-content');
     const mobileZone = document.getElementById('mobile-zone');
@@ -322,6 +326,7 @@
                 (loaded, total) => {
                     const percent = Math.round((loaded / total) * 100);
                     progressFill.style.width = `${percent}%`;
+                    if (splashFill) splashFill.style.width = `${percent}%`;
                     loadingText.textContent = `Loading images... ${loaded}/${total}`;
 
                     if (percent >= lastLoggedPercent + 20) {
@@ -360,6 +365,12 @@
             hideLoading();
             animator.start();
             log('animation started ▶', 'system');
+
+            // Dismiss splash once everything is ready
+            if (splash) {
+                splash.classList.add('done');
+                setTimeout(() => splash.remove(), 700);
+            }
 
             updateStats();
 
@@ -484,6 +495,14 @@
     }
 
     function setupUIHandlers() {
+        // Logo toggle → switch to v0 experience
+        const logo = document.getElementById('logo');
+        if (logo) {
+            logo.addEventListener('click', () => {
+                window.location.href = '/v0/';
+            });
+        }
+
         styleSelect.addEventListener('change', (e) => {
             loadStyle(e.target.value);
         });

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>art0</title>
+  <meta name="description" content="art0">
+  <meta property="og:description" content="art0">
+  <link rel="apple-touch-icon" sizes="180x180"
+    href="https://storage.googleapis.com/myproject-public-assets/art0-assets/mixx/favicon-ball/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="https://storage.googleapis.com/myproject-public-assets/art0-assets/mixx/favicon-ball/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://storage.googleapis.com/myproject-public-assets/art0-assets/mixx/favicon-ball/favicon-16x16.png">
+  <link rel="shortcut icon" href="https://storage.googleapis.com/myproject-public-assets/art0-assets/mixx/favicon-ball/favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom font settings for the frame text */
+    .frame-text {
+      font-family: monospace;
+      line-height: 0.8;
+      letter-spacing: -1px;
+      word-break: break-all;
+    }
+
+    /* Crazy Button Animation */
+    @keyframes crazy-wobble {
+      0% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      15% {
+        transform: scale(1.2) rotate(-15deg);
+      }
+
+      30% {
+        transform: scale(0.9) rotate(10deg);
+      }
+
+      45% {
+        transform: scale(1.1) rotate(-10deg);
+      }
+
+      60% {
+        transform: scale(0.95) rotate(5deg);
+      }
+
+      75% {
+        transform: scale(1.05) rotate(-5deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    .crazy-btn:hover {
+      animation: crazy-wobble 0.8s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .crazy-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Animated Gradient Background (GPU Accelerated) */
+    .animate-gradient-xy {
+      position: relative;
+      overflow: hidden;
+      background: #000; /* Fallback */
+    }
+
+    .animate-gradient-xy::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff, #ff00cc);
+      background-size: 200% 200%; /* Larger texture */
+      animation: gradient-spin 15s linear infinite;
+      will-change: transform;
+      z-index: 0;
+      opacity: 0.3; /* Subtle blend */
+    }
+
+    @keyframes gradient-spin {
+      0% {
+        transform: rotate(0deg) scale(1);
+      }
+      50% {
+        transform: rotate(180deg) scale(1.2);
+      }
+      100% {
+        transform: rotate(360deg) scale(1);
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" href="/index.css">
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/v0/assets/index-DVEr5kox.js"></script>
+</head>
+
+<body class="bg-black text-white m-0 p-0 overflow-hidden w-[100dvw] h-[100dvh]" style="touch-action: none; overscroll-behavior: none;">
+  <div id="root"></div>
+</body>
+
+</html>
