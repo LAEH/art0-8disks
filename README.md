@@ -1,71 +1,70 @@
 # art0 · 8disks
 
-Generative art studio with smooth crossfade animations across 8 color zones.
+Generative art studio — smooth crossfade animations across 8 color zones.
 
-## Features
+## Requirements
 
-- 4 generative art styles (louvre, klimt, vegas, light)
-- 8 color zone layers with independent fade transitions
-- Adjustable fade/hold timing
-- Frame overlays (3L, 5L variants)
-- 60fps canvas rendering with GPU-optimized image loading
-- Offline support via service worker
-- Responsive design (mobile, tablet, desktop)
-
-## Quick Start
-
-```bash
-./install.sh
-```
-
-## Manual Setup
-
-**Requirements:** Python 3.x or Node.js
-
-```bash
-# Option 1: Python
-python3 -m http.server 8080
-
-# Option 2: Node.js
-npx serve -p 8080
-```
-
-Then open http://localhost:8080
+- **External disk** with art0 asset images (~1.7GB). On first run, the CLI asks for the path and saves it to `dev/.diskpath`.
+- **ffmpeg** (for CLI video generation)
+- **Python 3.x** with Flask (for web app)
 
 ## Project Structure
 
 ```
-├── index.html          # Main entry point
-├── config.json         # Asset paths and style definitions
-├── css/
-│   └── style.css       # Responsive liquid glass UI
-├── js/
-│   ├── app.js          # Application orchestration
-│   ├── animator.js     # 60fps canvas animation engine
-│   └── imageLoader.js  # Adaptive image preloader
-├── sw.js               # Service worker for offline caching
-└── firebase.json       # Firebase hosting config
+├── index.html              # Static web app (Firebase hosted)
+├── css/ js/                # Static frontend assets
+├── firebase.json           # Firebase hosting config
+├── sw.js                   # Service worker for offline caching
+│
+└── dev/                    # Local dev tools (CLI + Flask web app)
+    ├── make                # CLI launcher
+    ├── art0_cli.py         # Interactive CLI — video generation via ffmpeg
+    ├── art0_webapp.py      # Flask web app — browser-based animator
+    ├── requirements.txt    # Python dependencies
+    ├── .diskpath           # Path to asset data on disk (auto-created, gitignored)
+    ├── templates/          # Flask HTML templates
+    ├── static/             # Flask static assets (css/js)
+    └── @cold/              # Archived scripts and notebooks
 ```
 
-## Deployment
+## CLI Studio
+
+Generate art0 videos from the terminal. All choices have defaults — press Enter to accept.
 
 ```bash
-# Install Firebase CLI
-npm install -g firebase-tools
+# Interactive mode (defaults: vegas, 1680px, 3 sets, 1.0s fade/hold, 2 videos)
+./dev/make
 
-# Login and deploy
-firebase login
+# Random mode
+./dev/make -r        # 1 random video
+./dev/make -r 5      # 5 random videos
+./dev/make -r 3 -o ~/Desktop  # 3 random to custom folder
+```
+
+Videos are saved to `dev/results/studio/` by default.
+
+## Web App
+
+```bash
+cd dev
+pip install -r requirements.txt
+python3 art0_webapp.py
+```
+
+Then open http://localhost:5000. Images load from GCS CDN. Features:
+- 4 styles (klimt, light, louvre, vegas) with resolution picker
+- Adjustable fade/hold timing
+- Frame overlays (3L, 5L, inverted variants)
+- Zone progress bar showing current animation cycle
+- Terminal log panel
+
+## Deployment (Static Site)
+
+```bash
 firebase deploy
 ```
 
-## Configuration
-
-Edit `config.json` to modify:
-- `cdn`: Base URL for image assets
-- `categories`: Color zone order
-- `styles`: Available art styles and resolutions
-- `frames`: Frame overlay paths
-- `intros`: Background image paths
+The static site at root (`index.html`, `css/`, `js/`) is deployed to Firebase Hosting. It loads images from GCS CDN and runs entirely in the browser.
 
 ## License
 

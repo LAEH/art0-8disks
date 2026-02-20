@@ -20,3 +20,17 @@ Thumbs.db
 
 # Environment files
 .env*
+
+# Python
+dev/.venv/
+__pycache__/
+
+# Disk path config (user-specific)
+dev/.diskpath
+
+# Symlinked data on external disk
+dev/assets
+dev/results
+dev/@cold/_
+dev/@cold/exports
+dev/@cold/exports-miaou.zip
